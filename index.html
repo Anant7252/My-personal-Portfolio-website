@@ -2,181 +2,1043 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="css/portfolio.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <title>Personal Portfolio Website</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anant Tripathi | Software Developer</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Fira Code Font (Code-Editor Look) -->
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&display=swap" rel="stylesheet">
+    <!-- Load Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Load GSAP and ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <style>
+        /* Custom styles based on UI sample */
+        :root {
+            --bg-color: #121212;
+            --text-color: #E0E0E0;
+            --accent-color: #10B981;
+            /* Green Accent */
+            --subtle-color: #757575;
+        }
+
+        body {
+            font-family: 'Fira Code', monospace;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+            background-image:
+                linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .container-padding {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        @media (min-width: 640px) {
+            .container-padding {
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .container-padding {
+                padding-left: 2rem;
+                padding-right: 2rem;
+            }
+        }
+
+        .code-block {
+            background-color: #1E1E1E;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s;
+        }
+
+        .code-block:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-color);
+        }
+
+        .text-accent {
+            color: var(--accent-color);
+        }
+
+        /* Typewriter Cursor animation */
+        .typewriter-cursor {
+            display: inline-block;
+            width: 1ch;
+            background-color: var(--accent-color);
+            animation: blink 0.7s step-end infinite;
+        }
+
+        @keyframes blink {
+
+            from,
+            to {
+                visibility: hidden;
+            }
+
+            50% {
+                visibility: visible;
+            }
+        }
+
+        /* Hero Image Container: Standard Rounded Rectangle */
+        #profile-shape {
+            background-color: #262626;
+            border: 4px solid var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 4px 22px var(--accent-color);
+
+            /* Changed to large border-radius for rounded rectangle look */
+            border-radius: 2rem;
+            /* Adjusted for a smooth, visible curve */
+
+            /* Initial state for GSAP animation */
+
+        }
+
+        /* Ensure the image fills the container */
+        #profile-shape img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            /* No need for transform scale, keeping it clean */
+            transform: scale(1.1);
+            /* Inherit border radius masking */
+            border-radius: 2rem;
+        }
+
+        .initial-hidden {
+            opacity: 0;
+        }
+
+        /* Project specific styles for carousel */
+        .project-carousel-container {
+            position: relative;
+            /* Ensures arrows are positioned relative to this container */
+            overflow: hidden;
+            /* Hides projects that are not active */
+        }
+
+        .project-item {
+            display: none;
+            /* Hide all by default */
+            width: 100%;
+            /* Ensure it takes full width of the carousel */
+            transition: opacity 0.3s ease-in-out;
+            opacity: 0;
+            margin-bottom: 0 !important;
+            /* Override margin from parent elements */
+        }
+
+        .project-item.active {
+            display: flex;
+            /* Only show active project */
+            opacity: 1;
+        }
+
+        .carousel-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            padding: 10px;
+            cursor: pointer;
+            color: var(--accent-color);
+            transition: color 0.3s;
+            background-color: rgba(18, 18, 18, 0.7);
+            /* Dark semi-transparent background */
+            border-radius: 50%;
+            /* Rounded buttons */
+            width: 40px;
+            height: 40px;
+            display: none;
+            /* Hidden by default, shown by JS/LG screens */
+            align-items: center;
+            justify-content: center;
+            opacity: 0.8;
+        }
+
+        .carousel-arrow:hover {
+            color: var(--text-color);
+            opacity: 1;
+        }
+
+        #prev-project {
+            left: 10px;
+        }
+
+        #next-project {
+            right: 10px;
+        }
+
+        .filter-button {
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .filter-button.active-filter {
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+            font-weight: bold;
+        }
+
+        /* Show arrows on large screens if needed by JS */
+        @media (min-width: 1024px) {
+            .carousel-arrow {
+                display: flex;
+            }
+        }
+    </style>
 </head>
 
-<body>
-  <header id="first">
-    <div class="hero">
-      <nav>
-        <a href="index.html" class="logo">Anant Tripathi</a>
-        <ul>
-          <li id="home" class="tab-item "><a href="#first">Home</a></li>
-          <li><a href="#about" class="tab-item">About</a></li>
-          <li><a href="#" class="tab-item" id="education">Education</a></li>
-          <li><a href="#project"  class="tab-item" id="projects">Projects</a></li>
-          <li><a href="#contact" class="tab-item ">Contact</a></li>
-        </ul>
-        <a href="https://drive.google.com/file/d/1iCqS8tNe9FeIYx7SyRQgnX-0mUFLosJ6/view?usp=sharing"
-          class="btn" target="_blank">Resume</a>
-        <button id="theme-toggle" class="btn">
-          <i id="theme-icon" class="fas fa-sun"></i>
-        </button>
-      </nav>
-      <div class="social-icons">
-        <a href="https://www.linkedin.com/in/anant-tripathi-52628b223/" target="_blank" class="social-icon">
-          <i class="fab fa-linkedin"></i>
-        </a>
-        <a href="https://github.com/Anant7252?tab=repositories" target="_blank" class="social-icon">
-          <i class="fab fa-github"></i>
-        </a>
-      </div>
-      <div class="content">
-        <h1 >Hello, I'm <span>Anant Tripathi</span></h1>
-        <h2>Computer Science Student(CSE-AIML)</h2>
-        <img src="assists/anant.jpg" alt="Anant Tripathi" class="img">
-        <p>
-          A Fourth-Year undergraduate Computer Science(CSE-AIML) Student at Oriental Institute Of Science and Technology
-          ,Bhopal, Madhya Pradesh.
-        </p>
-        <a href="cv.pdf" download="cv.pdf" class="btn">Download CV</a>
-      </div>
-    </div>
-  </header>
-  <section class="section1" id="about">
-    <div class="About">
-      <h1>About Me</h1>
-      <h4>My Introduction</h4>
-      <img src="assists/anant.jpg" alt="">
-      <p id="text">I am a fourth-year undergraduate student pursuing Computer Science and Engineering with a specialization in Artificial Intelligence and Machine Learning (CSE-AIML). With a deep passion for technology, especially in AI and ML, I thrive in dynamic and challenging environments where innovation is key. I am also proficient in frontend development, which complements my technical expertise. My self-motivated, can-do attitude drives me to continuously learn and apply new concepts in both AI/ML and web development. I actively seek opportunities to enhance my skills, contribute meaningfully to organizations, and stay at the forefront of technology.</p>
-    </div>
-    <div class="about__info">
-      <div>
-        <span class="about__info-title">7.9+</span>
-        <span class="about__info-name">Aggregate <br />CGPA</span>
-      </div>
+<body class="selection:bg-cyan-500 selection:text-gray-900">
 
-      <div>
-        <span class="about__info-title">04+</span>
-        <span class="about__info-name">
-          Projects</span>
-      </div>
+    <!-- Scroll Progress Bar -->
+    <div id="scroll-progress" class="fixed top-0 left-0 h-1 bg-gradient-to-r from-cyan-500 to-green-500 z-50"></div>
 
-      <div>
-        <span class="about__info-title">01+</span>
-        <span class="about__info-name">Months <br />experience</span>
-      </div>
-    </div>
-  </section>
-  <div class="skills">
-    <h1>Skills</h1>
-    <div class="skill-section">
-      <div class="skills-tab">
-        <a id="Programming">Programming Language</a>
-        <hr>
-        <ul>
-          <li>C++</li>
-          <li>C</li>
-          <li>Python</li>
-          <li>FrontEnd</li>
-          <li>Web Development</li>
-        </ul>
-      </div>
-      <div class="skills-tab">
-        <a id="it">IT Constructs</a>
-        <hr>
-        <ul>
-          <li>DSA</li>
-          <li>OOP</li>
-          <li>Python</li>
-          <li>Machine Learning</li>
-        </ul>
-      </div>
-    </div>
-  </div>
+    <!-- Navigation -->
+    <header class="sticky top-0 z-40 bg-gray-900/95 backdrop-blur-sm shadow-xl shadow-black/30">
+        <nav class="max-w-7xl mx-auto container-padding py-4 flex justify-between items-center text-sm">
+            <a href="#hero" class="text-xl font-bold text-accent">
+                Anant.
+            </a>
 
-  </div>
-  <div id="section2" class="section2">
-    <h1>Education</h1>
-    <div class="buttons">
-      <button id="highbutton">Highschool</button>
-      <button id="higherbutton">Higher Secondary</button>
-      <button id="grbutton">Graduation</button>
-    </div>
-    <div class="sections">
-      <div class="section hidden" id="high">
-        <h2>2018-2019</h2>
-        <hr>
-        <h2>HIGH SCHOOL</h2>
-        <p>Vidya Dham Hr. Sec. School <br>
-          Percentage: 95.4%<br>
-          Passing Year: 2019</p>
-      </div>
-      <div class="section hidden" id="higher">
-        <h2>Higher Secondary/Class 12th Details</h2>
-        <hr>
-        <p>School Name: Vidya Dham Hr. Sec. School <br>
-          Percentage: 95.6%<br>
-          Passing Year: 2021</p>
-      </div>
-      <div class="section hidden" id="graduation">
-        <h2>Graduation Details</h2>
-        <hr>
-        <p>Degree Name: B.Tech <br>
-          Course Name: Computer Science Engineering with specialization Artificial Intelligence and Machine Learning
-          (CSE-AIML)</p>
-      </div>
-    </div>
-  </div>
-  <div class="projects" id="project">
-    <h1> you can see my projects on my github</h1>
-    <p1>click below to go to my github repositories</p1>
-    <a href="https://github.com/Anant7252?tab=repositories" target="_blank" class="social-icon">
-      <i class="fab fa-github"></i>
-    </a>
-  </div>
-  <div class="contact" id="contact">
-    <div class="contact1">
-      <h1>you can contact me by links below</h1>
-    </div>
-    <div class="contact2">
-      <a href="mailto:ananttripathi7252@gmail.com" target="_blank" class="social-icon" aria-label="Email">
-        <i class="fas fa-envelope"></i>
-      </a>
-      <a href="https://www.linkedin.com/in/anant-tripathi-52628b223/" target="_blank" class="social-icon">
-        <i class="fab fa-linkedin"></i>
-      </a>
-      <a href="https://wa.me/8349774705" target="_blank" class="social-icon" aria-label="WhatsApp">
-        <i class="fab fa-whatsapp"></i>
-      </a>
-      <a href="tel:+8349774705" class="social-icon" aria-label="Mobile">
-        <i class="fas fa-phone"></i>
-      </a>
-    </div>
-  </div>
+            <!-- Desktop Navigation -->
+            <div id="desktop-nav" class="hidden lg:flex space-x-6 font-medium text-gray-400">
+                <a href="#about" class="hover:text-accent transition duration-200">About</a>
+                <a href="#skills" class="hover:text-accent transition duration-200">Skills</a>
+                <a href="#projects" class="hover:text-accent transition duration-200">Projects</a>
+                <a href="#contact" class="hover:text-accent transition duration-200">Contact</a>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button id="menu-button" class="lg:hidden text-2xl text-accent hover:text-white transition duration-200">
+                <i id="menu-icon" class="ph-bold ph-list"></i>
+            </button>
+        </nav>
+
+        <!-- Mobile Menu (Initially hidden by Tailwind's hidden class) -->
+        <div id="mobile-menu" class="hidden lg:hidden bg-gray-900/90 py-2 border-t border-gray-800">
+            <a href="#about"
+                class="block py-2 px-6 text-gray-300 hover:text-accent hover:bg-gray-800 transition duration-200"
+                onclick="closeMobileMenu()">About</a>
+            <a href="#skills"
+                class="block py-2 px-6 text-gray-300 hover:text-accent hover:bg-gray-800 transition duration-200"
+                onclick="closeMobileMenu()">Skills</a>
+            <a href="#projects"
+                class="block py-2 px-6 text-gray-300 hover:text-accent hover:bg-gray-800 transition duration-200"
+                onclick="closeMobileMenu()">Projects</a>
+            <a href="#contact"
+                class="block py-2 px-6 text-gray-300 hover:text-accent hover:bg-gray-800 transition duration-200"
+                onclick="closeMobileMenu()">Contact</a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto container-padding py-16">
+
+        <!-- 1. Hero Section (Code-Style Introduction) -->
+        <section id="hero"
+            class="min-h-[85vh] flex flex-col md:flex-row items-center md:items-start justify-center text-left md:space-x-16 pt-20">
+            <!-- Increased space-x to 16 for better gap -->
+
+            <!-- Left: Profile Image -->
+            <div class="w-full md:w-1/3 flex justify-center mb-10 md:mb-0">
+                <!-- Added w-64 h-80 for default sizing, using w-full for mobile size -->
+                <div id="profile-shape" class="w-64 h-80 flex items-center justify-center p-2">
+                    <img src="anant1.jpg"
+                        alt="Anant Tripathi Profile Picture" class="initial-hidden w-full">
+                </div>
+            </div>
+
+            <!-- Right: Code-Styled Text -->
+            <div class="w-full md:w-2/3 space-y-4 max-w-2xl">
+
+
+                <h1 class="text-5xl sm:text-7xl lg:text-8xl font-bold leading-tight initial-hidden"
+                    id="hero-main-title">
+                    <span class="text-gray-300">Anant </span>
+                    <span class="text-accent">{Tripathi}</span>
+                </h1>
+
+                <!-- Target element for typewriter effect -->
+                <h2 id="typewriter-text" class="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight text-gray-300">
+                    <span class="text-gray-400"></span><span class="typewriter-cursor"></span>
+                </h2>
+
+                <p class="text-lg text-gray-400 pt-4 max-w-xl initial-hidden" id="hero-description">
+                    <span class="text-accent">&lt;p&gt;</span> With expertise in cutting-edge technologies such as <span
+                        class="text-accent">Node.js, React, Express.js, and MongoDB</span>, I deliver software solutions
+                    that are both innovative and robust.<span class="text-accent">&lt;/p&gt;</span>
+                </p>
+                <div class="flex flex-wrap justify-center gap-4 mt-6">
+                    <a href="resume.pdf" download="cv.pdf"
+                        class="px-6 py-3 rounded-lg font-semibold text-gray-900 bg-[#10b981] hover:bg-opacity-90 shadow-lg shadow-[var(--accent)]/40 transition duration-300">
+                        Download CV
+                    </a>
+                    <a href="#projects"
+                        class="px-6 py-3 rounded-lg font-semibold border-2 border-[var(--accent)] text-[var(--accent)] hover:bg-[var(--accent)] hover:text-gray-900 transition duration-300">
+                        View Work
+                    </a>
+                    </div>
+
+                <!-- Social Icons from Resume -->
+                <div class="flex space-x-5 pt-4 text-3xl text-gray-500 initial-hidden" id="hero-socials">
+                    <a href="https://github.com/Anant7252" target="_blank"
+                        class="hover:text-accent transition duration-300"><i class="ph-fill ph-github-logo"></i></a>
+                    <a href="https://linkedin.com/in/anant-tripathi" target="_blank"
+                        class="hover:text-accent transition duration-300"><i class="ph-fill ph-linkedin-logo"></i></a>
+                    <a href="mailto:ananttripathi7252@gmail.com" class="hover:text-accent transition duration-300"><i
+                            class="ph-fill ph-envelope-simple"></i></a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Services / What I Do Section (Replicating Image 2: Solutions Grid) -->
+        <section id="services" class="py-24 section-target">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl sm:text-4xl font-bold text-gray-300">
+                    Designing Solutions Customized to Meet
+                    <span class="text-accent block mt-2">Your Requirements</span>
+                </h2>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="service-card code-block p-6 space-y-3">
+                    <i class="ph-bold ph-code-block text-4xl text-accent"></i>
+                    <h3 class="text-xl font-bold text-gray-200">Web & App Development</h3>
+                    <p class="text-sm text-gray-400">
+                        Crafting visually appealing and user-friendly interfaces using React.js and modern styling
+                        frameworks like Tailwind CSS.
+                    </p>
+                </div>
+                <!-- Card 2 -->
+                <div class="service-card code-block p-6 space-y-3">
+                    <i class="ph-bold ph-database text-4xl text-accent"></i>
+                    <h3 class="text-xl font-bold text-gray-200">Database Management</h3>
+                    <p class="text-sm text-gray-400">
+                        Implementing robust and scalable database solutions, primarily using **MongoDB** for efficient
+                        data persistence.
+                    </p>
+                </div>
+                <!-- Card 3 -->
+                <div class="service-card code-block p-6 space-y-3">
+                    <i class="ph-bold ph-server text-4xl text-accent"></i>
+                    <h3 class="text-xl font-bold text-gray-200">API Development</h3>
+                    <p class="text-sm text-gray-400">
+                        Building powerful and secure backend services and RESTful APIs using **Node.js** and
+                        **Express.js** for full-stack integration.
+                    </p>
+                </div>
+                <!-- Card 4 (Based on AIML Focus) -->
+                <div class="service-card code-block p-6 space-y-3">
+                    <i class="ph-bold ph-brain text-4xl text-accent"></i>
+                    <h3 class="text-xl font-bold text-gray-200">Integrating AI & ML</h3>
+                    <p class="text-sm text-gray-400">
+                        Applying technical knowledge from B.Tech in CSE (AIML) to integrate AI-driven problem-solving
+                        into applications (e.g., Vedsetu AI).
+                    </p>
+                </div>
+                <!-- Card 5 (Based on Project Experience) -->
+                <div class="service-card code-block p-6 space-y-3">
+                    <i class="ph-bold ph-device-mobile text-4xl text-accent"></i>
+                    <h3 class="text-xl font-bold text-gray-200">Mobile Development</h3>
+                    <p class="text-sm text-gray-400">
+                        Cross-platform mobile application development using **React Native (Expo)**, demonstrated in
+                        projects like Aqua Track and Music Player App.
+                    </p>
+                </div>
+                <!-- Card 6 (General Focus) -->
+                <div class="service-card code-block p-6 space-y-3">
+                    <i class="ph-bold ph-chart-bar text-4xl text-accent"></i>
+                    <h3 class="text-xl font-bold text-gray-200">Performance Optimization</h3>
+                    <p class="text-sm text-gray-400">
+                        Focusing on clean code and efficient architecture to ensure high performance and scalability
+                        across all applications.
+                    </p>
+                </div>
+            </div>
+
+            <div class="text-center mt-12 text-gray-400">
+                Excited to take on new projects and collaborate, lets chat about your ideas.
+                <a href="#contact" class="text-accent underline hover:text-white transition duration-300">Reach Out</a>
+            </div>
+        </section>
+
+        <!-- 3. Skills Section (Replicating Image 3: Skills Icon Grid) -->
+        <section id="skills" class="py-24 section-target">
+            <div class="mb-16">
+                <p class="text-sm text-accent">.Skills</p>
+                <h2 class="text-4xl sm:text-5xl font-bold text-gray-300 mt-2">
+                    My Technical Stack
+                </h2>
+            </div>
+
+            <div class="flex flex-col lg:flex-row lg:space-x-12">
+                <!-- Left: Icons Grid (Dynamic Icons with labels) -->
+               <div class="lg:w-1/2 w-full h-64 sm:h-80 md:h-96 lg:h-[28rem] relative overflow-hidden code-block mb-10 lg:mb-0 rounded-xl">
+  <img src="./skills.png" alt="Skills Icons Grid"
+       class="absolute inset-0 w-full h-full object-cover object-center">
+</div>
+
+
+
+                <!-- Right: Detailed Skill List -->
+                <div class="lg:w-1/2 p-6 code-block space-y-4 text-gray-400">
+                    <p class="text-accent text-sm">.Expertise</p>
+                    <ul class="list-none space-y-3">
+                        <li class="flex items-start">
+                            <span class="text-accent mr-2 mt-1">•</span>
+                            <div class="flex-1">
+                                <span class="text-gray-200">Languages: </span> Python, JavaScript
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-accent mr-2 mt-1">•</span>
+                            <div class="flex-1">
+                                <span class="text-gray-200">Front-End: </span> React.js, Tailwind CSS, HTML, CSS
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-accent mr-2 mt-1">•</span>
+                            <div class="flex-1">
+                                <span class="text-gray-200">Back-End: </span> Node.js, Express.js (MERN Stack)
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-accent mr-2 mt-1">•</span>
+                            <div class="flex-1">
+                                <span class="text-gray-200">Databases: </span> MongoDB
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-accent mr-2 mt-1">•</span>
+                            <div class="flex-1">
+                                <span class="text-gray-200">Mobile Dev: </span> React Native (Expo)
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-accent mr-2 mt-1">•</span>
+                            <div class="flex-1">
+                                <span class="text-gray-200">AI/ML: </span> Artificial Intelligence, Machine Learning
+                                Concepts
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Projects Section (Replicating Image 4: Recent Works) -->
+        <section id="projects" class="py-24 section-target">
+            <div class="mb-16">
+                <p class="text-sm text-accent">.Projects</p>
+                <h2 class="text-4xl sm:text-5xl font-bold text-gray-300 mt-2">
+                    My Recent Works
+                </h2>
+            </div>
+
+            <!-- Project Filters -->
+            <div class="flex justify-center flex-wrap gap-3 mb-10" id="project-filters">
+                <!-- Buttons will be dynamically added here by JS -->
+            </div>
+
+            <!-- Project Carousel Container -->
+            <div id="project-carousel" class="project-carousel-container relative">
+
+                <!-- Project Navigation Arrows (Hide by default, shown by JS if needed) -->
+                <button id="prev-project" class="carousel-arrow" aria-label="Previous Project">
+                    <i class="ph-bold ph-caret-left text-2xl"></i>
+                </button>
+                <button id="next-project" class="carousel-arrow" aria-label="Next Project">
+                    <i class="ph-bold ph-caret-right text-2xl"></i>
+                </button>
+
+                <!-- Project Cards will be dynamically inserted here -->
+                <div id="project-cards-container">
+                    <p class="text-gray-500 text-center py-10">Loading projects...</p>
+                </div>
+
+            </div>
+            <!-- End Project Carousel Container -->
+
+        </section>
+
+        <!-- 5. Education Section (Replicating Image 5: Education Timeline) -->
+        <section id="education" class="py-24 section-target">
+            <div class="mb-16">
+                <p class="text-sm text-accent">.Timeline</p>
+                <h2 class="text-4xl sm:text-5xl font-bold text-gray-300 mt-2">
+                    Education & Credentials
+                </h2>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-10">
+                <!-- Education Column -->
+                <div class="space-y-8 p-6 code-block md:col-span-2 lg:col-span-1">
+                    <p class="text-xl font-bold text-accent flex items-center">
+                        <i class="ph-bold ph-graduation-cap text-3xl mr-3"></i> Education
+                    </p>
+
+                    <div class="space-y-6 border-l border-gray-700 pl-4">
+                        <!-- B.Tech -->
+                        <div class="edu-entry relative">
+                            <span
+                                class="absolute -left-3 top-0 w-2 h-2 rounded-full bg-accent border-2 border-gray-800"></span>
+                            <p class="text-sm text-gray-500">2021-2025</p>
+                            <h4 class="text-lg font-bold text-gray-200">Bachelor of Technology (B.Tech) CSE (AIML)</h4>
+                            <p class="text-sm text-gray-400">Oriental Institute of Science & Technology</p>
+                            <p class="text-xs text-accent">Percentage: 80%</p>
+                        </div>
+                        <!-- Senior Secondary (Class XII) -->
+                        <div class="edu-entry relative">
+                            <span
+                                class="absolute -left-3 top-0 w-2 h-2 rounded-full bg-accent border-2 border-gray-800"></span>
+                            <p class="text-sm text-gray-500">2020-2021</p>
+                            <h4 class="text-lg font-bold text-gray-200">Senior Secondary (Class XII)</h4>
+                            <p class="text-sm text-gray-400">Vidya Dham Hr. Sec. School</p>
+                            <p class="text-xs text-accent">Percentage: 95.8%</p>
+                        </div>
+                        <!-- Secondary (Class X) -->
+                        <div class="edu-entry relative">
+                            <span
+                                class="absolute -left-3 top-0 w-2 h-2 rounded-full bg-accent border-2 border-gray-800"></span>
+                            <p class="text-sm text-gray-500">2018-2019</p>
+                            <h4 class="text-lg font-bold text-gray-200">Secondary (Class X)</h4>
+                            <p class="text-sm text-gray-400">Vidya Dham Hr. Sec. School</p>
+                            <p class="text-xs text-accent">Percentage: 95.4%</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Certifications Column (Replicating Researched Section) -->
+                <div class="space-y-8 p-6 code-block md:col-span-2 lg:col-span-1">
+                    <p class="text-xl font-bold text-accent flex items-center">
+                        <i class="ph-bold ph-certificate text-3xl mr-3"></i> Certifications
+                    </p>
+
+                    <div class="space-y-6 border-l border-gray-700 pl-4">
+                        <!-- NPTEL Python -->
+                        <div class="cert-entry relative">
+                            <span
+                                class="absolute -left-3 top-0 w-2 h-2 rounded-full bg-accent border-2 border-gray-800"></span>
+                            <p class="text-sm text-gray-500">NPTEL</p>
+                            <h4 class="text-lg font-bold text-gray-200">Python Programming</h4>
+                            <p class="text-sm text-gray-400">
+                                Completed advanced course on Python fundamentals and data structures.
+                            </p>
+                        </div>
+                        <!-- Cisco Networking Academy -->
+                        <div class="cert-entry relative">
+                            <span
+                                class="absolute -left-3 top-0 w-2 h-2 rounded-full bg-accent border-2 border-gray-800"></span>
+                            <p class="text-sm text-gray-500">Cisco Networking Academy</p>
+                            <h4 class="text-lg font-bold text-gray-200">Programming Essentials in Python</h4>
+                            <p class="text-sm text-gray-400">
+                                Focused on core programming logic and language foundations.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. Contact Section (Inspired by the dark UI blocks) -->
+        <section id="contact" class="py-24 section-target">
+            <div class="mb-16">
+                <p class="text-sm text-accent">.Contact</p>
+                <h2 class="text-4xl sm:text-5xl font-bold text-gray-300 mt-2">
+                    Get in Touch
+                </h2>
+            </div>
+
+            <div class="max-w-3xl mx-auto code-block p-8 md:p-12 space-y-8 text-center">
+                <p class="text-xl text-gray-300">
+                    I am actively seeking new opportunities to apply my **MERN** and **AIML** skills. Let's discuss how
+                    my passion for robust, innovative solutions can help your organization grow.
+                </p>
+
+                <!-- Start of Contact Form -->
+                <form id="contact-form" class="space-y-4 text-left">
+                    <input type="text" id="contact-name" placeholder="Your Name" required
+                        class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:border-accent text-gray-300">
+                    <input type="email" id="contact-email" placeholder="Your Email" required
+                        class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:border-accent text-gray-300">
+                    <input type="text" id="contact-subject" placeholder="Subject" required
+                        class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:border-accent text-gray-300">
+                    <textarea id="contact-message" rows="4" placeholder="Your Message" required
+                        class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:border-accent text-gray-300"></textarea>
+
+                    <div class="text-center pt-4">
+                        <button type="submit"
+                            class="text-white inline-block px-8 py-3 bg-accent text-gray-900 font-bold rounded-md hover:bg-green-400 transition duration-300 shadow-lg shadow-accent/40">
+                            SEND MESSAGE <i class="ph-bold ph-envelope-simple ml-2"></i>
+                        </button>
+                    </div>
+                </form>
+                <!-- End of Contact Form -->
+
+                <div class="flex justify-center space-x-8 pt-4 border-t border-gray-700 mt-8">
+                    <a href="https://linkedin.com/in/anant-tripathi" target="_blank"
+                        class="text-4xl text-gray-400 hover:text-accent transition duration-200" title="LinkedIn">
+                        <i class="ph-fill ph-linkedin-logo"></i>
+                    </a>
+                    <a href="https://github.com/Anant7252" target="_blank"
+                        class="text-4xl text-gray-400 hover:text-accent transition duration-200" title="GitHub">
+                        <i class="ph-fill ph-github-logo"></i>
+                    </a>
+                    <a href="tel:+918349774705" class="text-4xl text-gray-400 hover:text-accent transition duration-200"
+                        title="Phone">
+                        <i class="ph-fill ph-phone-call"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-8 border-t border-gray-800 mt-12 text-sm text-gray-500">
+        <p>Anant Tripathi &copy; 2025 | Coded with <span class="text-accent">MERN</span> and <span
+                class="text-accent">GSAP</span></p>
+    </footer>
+
+    <!-- GSAP Initialization and Animations -->
     <script>
-      document.getElementById('theme-toggle').addEventListener('click', function () {
-        document.body.classList.toggle('light-mode');
-        const icon = document.getElementById('theme-icon');
-        if (document.body.classList.contains('light-mode')) {
-          icon.classList.remove('fas', 'fa-sun');
-          icon.classList.add('fas', 'fa-moon');
-        } else {
-          icon.classList.remove('fas', 'fa-moon');
-          icon.classList.add('fas', 'fa-sun');
+        // --- Global Project Data (Now embedded directly) ---
+        const PROJECTS_DATA = [
+            {
+                "id": 1,
+                "title": "LinkAT - Social Media Platform",
+                "description": "Built a full-stack social media platform using the **MERN Stack** (React.js, Node.js, Express.js, MongoDB) and JWT authentication.",
+                "focus": "Secure user login and authorization, rich content sharing (text, images, PDFs).",
+                "technologies": "React.js, Node.js, Express.js, MongoDB, JWT.",
+                "category": "web",
+                "liveDemo": "#",
+                "github": "https://github.com/Anant7252"
+            },
+            {
+                "id": 2,
+                "title": "Aqua Track - Water Business App",
+                "description": "Developed a mobile application using **React Native Expo** to streamline daily water tracking, boosting accuracy by 90%.",
+                "focus": "Automated billing and inventory, reducing manual workload by 60% and processing 500+ transactions daily.",
+                "technologies": "React Native, Expo.",
+                "category": "mobile",
+                "liveDemo": "#",
+                "github": "https://github.com/Anant7252"
+            },
+            {
+                "id": 3,
+                "title": "Vedsetu AI Integrated App",
+                "description": "An **AI-powered app** for querying Hindu Vedic knowledge and reading sacred texts like the Bhagavad Gita and Ramayana.",
+                "focus": "Integrated speech-to-text for AI queries and text-to-speech for responses, enhancing accessibility.",
+                "technologies": "AI/ML Integration, Speech-to-Text, Text-to-Speech.",
+                "category": "web", // Categorizing AI projects as web to keep them visible under 'All' and 'Web'
+                "liveDemo": "#",
+                "github": "https://github.com/Anant7252"
+            },
+            {
+                "id": 4,
+                "title": "Movie App UI",
+                "description": "Designed and implemented an interactive movie application UI with smooth navigation and modern styling using React Native Expo.",
+                "focus": "Enhancing user experience and usability with clean layouts and responsive components.",
+                "technologies": "React Native, Expo.",
+                "category": "mobile",
+                "liveDemo": "#",
+                "github": "https://github.com/Anant7252"
+            }
+        ];
+
+        // --- Mobile Menu Toggle Logic ---
+        function closeMobileMenu() {
+            document.getElementById('mobile-menu').classList.add('hidden');
+            document.getElementById('menu-icon').classList.remove('ph-x-bold');
+            document.getElementById('menu-icon').classList.add('ph-list');
         }
-      });
+
+        document.getElementById('menu-button').addEventListener('click', () => {
+            const menu = document.getElementById('mobile-menu');
+            const icon = document.getElementById('menu-icon');
+
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                icon.classList.remove('ph-list');
+                icon.classList.add('ph-x-bold'); // Change to X icon
+            } else {
+                menu.classList.add('hidden');
+                icon.classList.remove('ph-x-bold');
+                icon.classList.add('ph-list'); // Change back to list icon
+            }
+        });
+
+        // --- Infinite Typewriter Logic ---
+        const typeWriterElement = document.querySelector('#typewriter-text span');
+        const textArray = ["Web Developer", "App Developer"];
+        let textIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+
+        function loopType() {
+            const currentText = textArray[textIndex % textArray.length];
+
+            if (isDeleting) {
+                // Erase text
+                typeWriterElement.textContent = currentText.substring(0, charIndex - 1);
+                charIndex--;
+            } else {
+                // Type text
+                typeWriterElement.textContent = currentText.substring(0, charIndex + 1);
+                charIndex++;
+            }
+
+            let typeSpeed = 70; // Typing speed
+
+            // Check if finished typing or finished erasing
+            if (!isDeleting && charIndex === currentText.length) {
+                typeSpeed = 1500; // Pause after typing for 1.5 seconds
+                isDeleting = true;
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                textIndex++; // Move to the next phrase
+                typeSpeed = 500; // Pause briefly before starting next phrase
+            }
+
+            // Use setTimeout for the continuous loop
+            setTimeout(loopType, typeSpeed);
+        }
+
+        // --- Project Rendering Functions ---
+
+        const PROJECT_CONTAINER = document.getElementById('project-cards-container');
+        const FILTER_CONTAINER = document.getElementById('project-filters');
+
+        function createProjectCard(project) {
+            // Determine order based on project type for visual variety (odd/even IDs)
+            const isEven = (project.id % 2 === 0);
+            const imageOrder = isEven ? 'lg:order-1' : 'lg:order-none';
+            const infoOrder = isEven ? 'lg:order-2' : 'lg:order-none';
+
+            // Note: Project is marked with data-id for accurate re-rendering after filtering
+            const cardHTML = `
+                <div class="project-item code-block p-6" data-category="${project.category}" data-id="${project.id}">
+                    <div class="flex flex-col lg:flex-row">
+                        <!-- Left/Image Placeholder -->
+                        <div class="lg:w-1/2 flex items-center justify-center mb-6 lg:mb-0 lg:pr-8 ${imageOrder}">
+                            <div class="w-full h-64 bg-gray-800 rounded-lg border-2 border-accent/30 flex items-center justify-center p-4">
+                                <p class="text-lg text-gray-400">${project.title} Mockup Placeholder (${project.category.toUpperCase()})</p>
+                            </div>
+                        </div>
+
+                        <!-- Right/Project Info -->
+                        <div class="lg:w-1/2 space-y-4 ${infoOrder}">
+                            <h3 class="text-2xl font-bold text-accent">${project.title}</h3>
+                            <p class="text-lg text-gray-300">${project.description}</p>
+                            <div class="border-t border-gray-700 pt-4 space-y-2 text-sm">
+                                <p class="text-gray-400"><span class="text-accent font-medium">Focus:</span> ${project.focus}</p>
+                                <p class="text-gray-400"><span class="text-accent font-medium">Technologies:</span> ${project.technologies}</p>
+                                <div class="flex space-x-6 pt-3 text-accent underline text-base">
+                                    <a href="${project.liveDemo}" target="_blank" class="hover:text-white transition duration-300">Live Demo</a>
+                                    <a href="${project.github}" target="_blank" class="hover:text-white transition duration-300">View on Github</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            return cardHTML;
+        }
+
+        function renderAllProjectCards(projects) {
+            // Renders all project cards into the container only once.
+            const validCategories = ['web', 'mobile', 'ai'];
+            const projectsToRender = projects.filter(p => validCategories.includes(p.category));
+
+            PROJECT_CONTAINER.innerHTML = projectsToRender.map(p => createProjectCard(p)).join('');
+        }
+
+        function createFilterButtons() {
+            // Define only the buttons requested: All, Web, Mobile
+            const availableCategories = ['all', 'web', 'mobile'];
+
+            const categoryMap = {
+                'all': 'All Projects',
+                'web': 'Web Development',
+                'mobile': 'Mobile Apps',
+            };
+
+            const buttons = availableCategories.map(cat => `
+                    <button onclick="filterProjects('${cat}')"
+                        class="filter-button px-4 py-2 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700"
+                        data-category-filter="${cat}">
+                        ${categoryMap[cat]}
+                    </button>
+                `).join('');
+
+            FILTER_CONTAINER.innerHTML = buttons;
+
+            // Ensure the 'all' button is active initially
+            document.querySelector('[data-category-filter="all"]').classList.add('active-filter');
+        }
+
+        // --- Project Filtering and Carousel Logic ---
+        let currentCategory = 'all';
+        let projectIndex = 0;
+
+        function getVisibleProjects() {
+            const allProjects = Array.from(document.querySelectorAll('.project-item'));
+            if (currentCategory === 'all') {
+                return allProjects;
+            }
+            // Filter based on the current active button category
+            return allProjects.filter(p => p.getAttribute('data-category') === currentCategory);
+        }
+
+        function updateProjectDisplay() {
+            const visibleProjects = getVisibleProjects();
+            const totalProjects = visibleProjects.length;
+
+            // 1. Hide all project items
+            document.querySelectorAll('.project-item').forEach(p => {
+                p.classList.remove('active');
+                p.style.display = 'none';
+                p.style.opacity = 0;
+            });
+
+            // 2. Handle Zero Projects case
+            if (totalProjects === 0) {
+                // Check if the no projects message is already shown to avoid replacing the cards container unnecessarily
+                if (PROJECT_CONTAINER.children.length > 0 && !PROJECT_CONTAINER.children[0].classList.contains('text-red-500')) {
+                    PROJECT_CONTAINER.innerHTML = `<p class="text-gray-500 text-center py-10">No projects found for the selected category.</p>`;
+                } else if (PROJECT_CONTAINER.children.length === 0) {
+                    PROJECT_CONTAINER.innerHTML = `<p class="text-gray-500 text-center py-10">No projects found for the selected category.</p>`;
+                }
+
+                document.getElementById('prev-project').style.display = 'none';
+                document.getElementById('next-project').style.display = 'none';
+                return;
+            }
+
+            // If the "No projects found" message is visible, re-render the cards first
+            if (PROJECT_CONTAINER.children.length === 1 && PROJECT_CONTAINER.children[0].classList.contains('text-gray-500')) {
+                renderAllProjectCards(PROJECTS_DATA);
+                // Need to re-get visible projects after re-rendering
+                return updateProjectDisplay();
+            }
+
+            // 3. Ensure index is valid (wraps around)
+            projectIndex = (projectIndex % totalProjects + totalProjects) % totalProjects;
+
+            // 4. Show the active project with transition (DEFINITIVE FIX)
+            const activeProject = visibleProjects[projectIndex];
+            if (activeProject) {
+                // Must force display and opacity here for immediate visibility on first load/filter switch
+                activeProject.style.display = 'flex';
+                activeProject.style.opacity = 1;
+                activeProject.classList.add('active');
+            }
+
+            // 5. Toggle arrow visibility
+            const arrowDisplay = totalProjects > 1 ? 'flex' : 'none';
+            document.getElementById('prev-project').style.display = arrowDisplay;
+            document.getElementById('next-project').style.display = arrowDisplay;
+        }
+
+        function filterProjects(category) {
+            currentCategory = category;
+            projectIndex = 0; // Reset index when filtering
+
+            // Update button styles
+            document.querySelectorAll('.filter-button').forEach(btn => {
+                btn.classList.remove('active-filter');
+                if (btn.getAttribute('data-category-filter') === category) {
+                    btn.classList.add('active-filter');
+                }
+            });
+
+            // Re-render project display
+            updateProjectDisplay();
+        }
+
+        function navigateProjects(direction) {
+            const visibleProjects = getVisibleProjects();
+            if (visibleProjects.length <= 1) return;
+
+            // Hide the current active project quickly before changing the index
+            const currentProject = visibleProjects[projectIndex];
+            if (currentProject) {
+                currentProject.classList.remove('active');
+                currentProject.style.opacity = 0; // Quick fade out
+            }
+
+            // Update index
+            projectIndex += direction;
+
+            // Allow a brief moment for the current project to fade out before showing the next one
+            setTimeout(() => {
+                updateProjectDisplay();
+            }, 150);
+        }
+
+        // Attach event listeners for arrows
+        document.getElementById('prev-project').addEventListener('click', () => navigateProjects(-1));
+        document.getElementById('next-project').addEventListener('click', () => navigateProjects(1));
+
+        // --- Contact Form Logic (Mailto) ---
+        document.getElementById('contact-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const name = document.getElementById('contact-name').value;
+            const email = document.getElementById('contact-email').value;
+            const subject = document.getElementById('contact-subject').value;
+            const message = document.getElementById('contact-message').value;
+
+            const recipientEmail = 'ananttripathi7252@gmail.com';
+            const mailtoSubject = encodeURIComponent(subject);
+            const mailtoBody = encodeURIComponent(`Sender: ${name}\nEmail: ${email}\n\nMessage:\n${message}`);
+
+            // Construct the mailto link
+            const mailtoLink = `mailto:${recipientEmail}?subject=${mailtoSubject}&body=${mailtoBody}`;
+
+            // Open the default email client
+            window.location.href = mailtoLink;
+        });
+
+        // --- Data Initialization ---
+        function initializeProjects() {
+            // 1. Render all project cards first
+            renderAllProjectCards(PROJECTS_DATA);
+
+            // 2. Create filter buttons
+            createFilterButtons();
+
+            // 3. Apply default filter explicitly
+            filterProjects('all');
+        }
+
+        //---email-----
+        const contactForm = document.getElementById('contact-form');
+        if (contactForm) {
+            contactForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const name = document.getElementById('contact-name').value;
+                const email = document.getElementById('contact-email').value;
+                const subject = document.getElementById('contact-subject').value;
+                const message = document.getElementById('contact-message').value;
+
+                const mailSubject = `Message from ${name} - ${subject}`;
+                const mailBody = `${message}\n\nFrom: ${name}\nEmail: ${email}`;
+
+                // Open the user's default mail app
+                window.location.href = `mailto:ananttripathi7252@gmail.com?subject=${encodeURIComponent(mailSubject)}&body=${encodeURIComponent(mailBody)}`;
+            });
+        }
+
+        // --- GSAP Initialization and Animations ---
+        gsap.registerPlugin(ScrollTrigger);
+
+        function setupAnimations() {
+            // 1. Progress Bar Animation
+            gsap.to("#scroll-progress", {
+                width: "100%",
+                ease: "none",
+                scrollTrigger: {
+                    scrub: 0.5,
+                    start: "top top",
+                    end: "bottom bottom",
+                }
+            });
+
+            // 2. Hero Entrance Animation
+            const heroTl = gsap.timeline({ defaults: { duration: 0.8, ease: "power2.out" } });
+            heroTl
+                // Animate image shape
+                .from("#profile-shape", { scale: 0, duration: 1.2, ease: "elastic.out(1, 0.5)" })
+                // Animate the image inside
+                .from("#profile-shape img", { opacity: 0, duration: 0.8 }, "<0.2")
+                // Animate the main name
+                .from("#hero-main-title", { y: 20, opacity: 0, duration: 0.6 }, "<0.2")
+                // START INFINITE TYPEWRITER LOOP *after* the name is shown
+                .add(loopType, "<0.3")
+                // Animate description and socials after the name animation starts
+                .from("#hero-description", { opacity: 0, duration: 0.8 }, "<0.1")
+                .from("#hero-socials", { opacity: 0, y: 10, duration: 0.5 }, "<0.3");
+
+
+            // 3. Section Scroll-In Animation (applies to all sections after hero)
+            gsap.utils.toArray(".section-target").forEach((section) => {
+                gsap.from(section.children, {
+                    y: 40,
+                    opacity: 0,
+                    stagger: 0.2,
+                    ease: "power3.out",
+                    scrollTrigger: {
+                        trigger: section,
+                        start: "top 80%",
+                        toggleActions: "play none none none",
+                    }
+                });
+            });
+
+            // 4. Service Card Stagger Animation (Specific to the Services/What I Do section)
+            gsap.from(".service-card", {
+                opacity: 0,
+                y: 30,
+                stagger: 0.1,
+                ease: "back.out(1.7)",
+                scrollTrigger: {
+                    trigger: "#services",
+                    start: "top 70%",
+                    toggleActions: "play none none none"
+                }
+            });
+
+            // 5. Skills Icon Grid Stagger Animation
+            gsap.from(".skill-icon", {
+                scale: 0,
+                opacity: 0,
+                stagger: 0.08,
+                ease: "back.out(1.7)",
+                scrollTrigger: {
+                    trigger: "#skills",
+                    start: "top 70%",
+                    toggleActions: "play none none none"
+                }
+            });
+        }
+
+        // Run setup once the document is fully loaded
+        window.onload = function () {
+            // Remove initial-hidden class to ensure content is immediately visible if JS/GSAP fails or is delayed
+            document.querySelectorAll('.initial-hidden').forEach(el => {
+                el.style.opacity = 1;
+            });
+
+            // 1. Initialize projects using embedded data
+            initializeProjects();
+
+            // 2. Run animations
+            setupAnimations();
+
+            // 3. Set initial state for the mobile menu icon (list, not X)
+            document.getElementById('menu-icon').classList.add('ph-list');
+        };
     </script>
-    <script src="js/animation.js"></script>
-    <script src="js/education.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
-    <script src="js/portfolio.js"></script>
-    <script src="js/theme-toggle.js"></script>
+
 </body>
 
 </html>
